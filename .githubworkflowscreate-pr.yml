@@ -1,0 +1,32 @@
+name: Create PR for Develop to Stage
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: 'stage'
+          head: 'develop'
+          title: 'Merge develop into stage'
+          body: 'Automated PR to merge develop into stage'
+          commit-message: 'Automated PR to merge develop into stage'
+          draft: false
+

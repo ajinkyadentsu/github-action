@@ -1,0 +1,50 @@
+name: Merge Develop into Stage
+
+on:
+  schedule:
+    - cron: '30 6 * * 3'
+  workflow_dispatch:
+
+jobs:
+  merge-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        env:
+          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+          GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
+        run: |
+          git config --global user.email "${GIT_USER_EMAIL}"
+          git config --global user.name "${GIT_USER_NAME}"
+
+      - name: List pull requests
+        id: list_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequests } = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              base: 'stage',
+              head: 'develop'
+            });
+            return pullRequests.length ? pullRequests[0].number : null;
+
+      - name: Merge pull request
+        if: steps.list_pr.outputs.result != 'null'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = ${{ steps.list_pr.outputs.result }};
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              merge_method: 'squash'
+            });
+
