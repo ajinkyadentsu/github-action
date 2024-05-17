@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+  workflow_dispatch:
 
 jobs:
   create-pr:
@@ -29,4 +30,3 @@ jobs:
           body: 'Automated PR to merge develop into stage'
           commit-message: 'Automated PR to merge develop into stage'
           draft: false
-
