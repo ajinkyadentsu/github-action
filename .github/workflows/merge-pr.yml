@@ -27,7 +27,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { context, getOctokit } = require('@actions/github');
+            const { getOctokit, context } = require('@actions/github');
             const octokit = getOctokit('${{ secrets.GITHUB_TOKEN }}');
             const pullRequests = await octokit.rest.pulls.list({
               owner: context.repo.owner,
@@ -45,7 +45,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { context, getOctokit } = require('@actions/github');
+            const { getOctokit, context } = require('@actions/github');
             const octokit = getOctokit('${{ secrets.GITHUB_TOKEN }}');
             const prNumber = ${{ steps.list_pr.outputs.pr_number }};
             await octokit.rest.pulls.merge({
