@@ -47,4 +47,3 @@ jobs:
               pull_number: prNumber,
               merge_method: 'squash'
             });
-
