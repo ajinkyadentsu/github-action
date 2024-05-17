@@ -25,22 +25,25 @@ jobs:
         id: list_pr
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pullRequests } = await github.pulls.list({
+            const pullRequests = await github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               base: 'stage',
               head: 'develop'
             });
-            return pullRequests.length ? pullRequests[0].number : null;
+            const prNumber = pullRequests.data.length ? pullRequests.data[0].number : null;
+            core.setOutput('pr_number', prNumber);
 
       - name: Merge pull request
-        if: steps.list_pr.outputs.result != 'null'
+        if: steps.list_pr.outputs.pr_number != 'null'
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const prNumber = ${{ steps.list_pr.outputs.result }};
+            const prNumber = ${{ steps.list_pr.outputs.pr_number }};
             await github.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
