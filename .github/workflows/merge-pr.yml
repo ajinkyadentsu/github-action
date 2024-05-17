@@ -27,16 +27,15 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { context, github } = require('@actions/github');
-            console.log('GitHub context:', context);
-            const pullRequests = await github.pulls.list({
+            const { github, context } = require('@actions/github');
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            const pullRequests = await octokit.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               base: 'stage',
               head: 'develop'
             });
-            console.log('Pull requests:', pullRequests);
             const prNumber = pullRequests.data.length ? pullRequests.data[0].number : null;
             core.setOutput('pr_number', prNumber);
 
@@ -46,10 +45,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { context, github } = require('@actions/github');
+            const { github, context } = require('@actions/github');
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
             const prNumber = ${{ steps.list_pr.outputs.pr_number }};
-            console.log('Merging PR number:', prNumber);
-            await github.pulls.merge({
+            await octokit.rest.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber,
