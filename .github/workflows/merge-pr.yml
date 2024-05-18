@@ -27,18 +27,26 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { getOctokit, context } = require('@actions/github');
+            const github = require('@actions/github');
             const core = require('@actions/core');
-            const octokit = getOctokit(core.getInput('github-token'));
-            const pullRequests = await octokit.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              base: 'stage',
-              head: 'develop'
-            });
-            const prNumber = pullRequests.data.length ? pullRequests.data[0].number : null;
-            core.setOutput('pr_number', prNumber);
+            const token = core.getInput('github-token');
+            const octokit = github.getOctokit(token);
+            const { context } = github;
+
+            async function listPullRequests() {
+              const pullRequests = await octokit.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                base: 'stage',
+                head: 'develop'
+              });
+
+              const prNumber = pullRequests.data.length ? pullRequests.data[0].number : null;
+              core.setOutput('pr_number', prNumber);
+            }
+
+            listPullRequests();
 
       - name: Merge pull request
         if: steps.list_pr.outputs.pr_number != 'null'
@@ -46,13 +54,20 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { getOctokit, context } = require('@actions/github');
+            const github = require('@actions/github');
             const core = require('@actions/core');
-            const octokit = getOctokit(core.getInput('github-token'));
-            const prNumber = core.getInput('pr_number');
-            await octokit.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              merge_method: 'squash'
-            });
+            const token = core.getInput('github-token');
+            const octokit = github.getOctokit(token);
+            const { context } = github;
+
+            async function mergePullRequest() {
+              const prNumber = core.getInput('pr_number');
+              await octokit.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                merge_method: 'squash'
+              });
+            }
+
+            mergePullRequest();
