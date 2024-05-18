@@ -25,13 +25,9 @@ jobs:
         id: list_pr
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const github = require('@actions/github');
-            const core = require('@actions/core');
-            const token = core.getInput('github-token');
-            const octokit = github.getOctokit(token);
-            const { context } = github;
+            const { github, context, core } = require('@actions/github-script');
+            const octokit = github.getOctokit(core.getInput('github-token'));
             const pullRequests = await octokit.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -46,13 +42,9 @@ jobs:
         if: steps.list_pr.outputs.pr_number != 'null'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const github = require('@actions/github');
-            const core = require('@actions/core');
-            const token = core.getInput('github-token');
-            const octokit = github.getOctokit(token);
-            const { context } = github;
+            const { github, context, core } = require('@actions/github-script');
+            const octokit = github.getOctokit(core.getInput('github-token'));
             const prNumber = core.getInput('pr_number');
             await octokit.rest.pulls.merge({
               owner: context.repo.owner,
