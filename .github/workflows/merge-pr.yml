@@ -27,8 +27,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const token = core.getInput('github-token');
-            const octokit = github.getOctokit(token);
+            const octokit = github.getOctokit(github_token);
+            const { context } = github;
             const pullRequests = await octokit.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -45,8 +45,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const token = core.getInput('github-token');
-            const octokit = github.getOctokit(token);
+            const octokit = github.getOctokit(github_token);
+            const { context } = github;
             const prNumber = core.getInput('pr_number');
             await octokit.rest.pulls.merge({
               owner: context.repo.owner,
